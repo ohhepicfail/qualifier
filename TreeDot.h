@@ -2,6 +2,7 @@
 #define TREEDOT_H_INCLUDED
 
 #include <ctype.h>
+#include <cstring>
 
 
 #define MAX_DATA    256
@@ -35,10 +36,10 @@ int         tdPop           (tdStack * stk);
 
 
 
-void tdWrite (const char filenamein[], const char filenameout[])
+void tdWrite (const char * filenamein)
 {
     FILE * in  = fopen (filenamein , "r");
-    FILE * out = fopen (filenameout, "w");
+    FILE * out = fopen (strcat ((char *) filenamein, ".dot"), "w");
     assert (in);
     assert (out);
 
@@ -71,7 +72,7 @@ void tdWrite (const char filenamein[], const char filenameout[])
             char * data = (char *) calloc (MAX_DATA, sizeof (char));
             assert (data);
             const char * bdata = data;
-            while (*tree != ' ')
+            while (*tree != '_')
                 *(data++) = *(tree++);
             ++tree;
             data = (char *) bdata;
@@ -80,7 +81,7 @@ void tdWrite (const char filenamein[], const char filenameout[])
             while (isdigit (*tree))
                 right = right * 10 + (int) *(tree++) - '0';
             tree--;
-            printf ("%d\t%s\t%d\n", left, data, right);
+//            printf ("%d\t%s\t%d\n", left, data, right);
             fprintf (out, "\tnode%d[label = \"<f0> %d | <f1> %s | <f2> %d \"];\n", tdPop (nodeNumbers), left, data, right);
             free (data);
         }
@@ -118,19 +119,6 @@ void tdWrite (const char filenamein[], const char filenameout[])
     tdDeleteStack (&nodeNumbers);
     fclose (out);
     free (tree);
-}
-
-
-
-int tdNodeIsOk (tdNode * node)
-{
-    return  node                                                                                        \
-            && node         != (tdNode *) node->left                                                    \
-            && node         != (tdNode *) node->right                                                   \
-            && ((tdNode *) node->left  != NULL ? (tdNode *) node->left != (tdNode *) node->right : 1)   \
-            && ((tdNode *) node->left  != NULL ? tdNodeIsOk ((tdNode *) node->left)     : 1)            \
-            && ((tdNode *) node->right != NULL ? tdNodeIsOk ((tdNode *) node->right)    : 1) ;
-;
 }
 
 
